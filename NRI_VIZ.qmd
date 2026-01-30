@@ -1,0 +1,141 @@
+---
+title: "nri_viz"
+format: html
+editor: visual
+author: Peter Vitale
+---
+
+## Load Packages
+```{r}
+pacman::p_load('here',
+               'janitor',
+               'tidyverse',
+               'ggthemes',
+               'ggbeeswarm',
+               'patchwork',
+               'gghighlight')
+```
+
+## Read csv
+```{r}
+nri_df <- read_csv(here('data', 
+                        'National_Risk_Index_Counties_807384124455672111.csv'))
+```
+
+```{r}
+nri_clean <- nri_df %>% 
+  select(c(1,2,3,4,6,7,10, 15)) %>% 
+  clean_names() %>% 
+  filter(!state_name %in% c('Guam', 'District of Columbia', 
+                            'American Samoa','Puerto Rico',
+                            'Northern Mariana Islands', 'Virgin Islands'),
+         county_type == 'County') %>% # remove terretories
+  mutate('coast' = case_when( # Set up coastal index
+    state_name %in% c('Alaska', 'Hawaii', 'Oregon', 
+                      'Washington', 'California', 'Nevada',
+                      'Utah', 'Idaho', 'Colorado',
+                      'Wyoming', 'Montana')  ~ 'west',
+    state_name %in% c('Arizona', 'New Mexico', 'Texas', 'Oklahoma') ~ 'southwest',
+    state_name %in% c('Kansas', 'Nebraska', 'North Dakota', 
+                      'South Dakota', 'Minnesota', 'Iowa', 
+                      'Missouri', 'Illinois', 'Wisconsin',
+                      'Indiana', 'Ohio', 'Michigan') ~ 'midwest',
+    state_name %in% c('Pennsylvania', 'New York',  "New Hampshire", 
+                      "New Jersey", 'Maine', 'Vermont',
+                      'Delaware', 'Maryland', 'Rhode Island', 
+                      'Massachusetts') ~ 'east',
+    TRUE ~ 'south' # all the rest are the southern states
+  ))
+
+```
+
+```{r}
+#| warning: false
+#| fig-alt: 'A box plot of the United States and their respective National Risk Index (NRI) Scores. The states are broken up by their regions (West Coast, Southwest, Midwest, South, East Coast). The x axis is scaled from 0-100 with most states having a median NRI of around 50-75. California is highlighted and shows a higher median than most other states, at  94.8.'
+west <- nri_clean %>% 
+  filter(coast == 'west') %>% # Select the coast
+ggplot(aes(x = state_name, y = national_risk_index_score_composite))+
+  geom_beeswarm(alpha = .5, color = 'grey')+
+  labs(title = 'West Coast')+
+  geom_boxplot(fill = '#DD0426')+
+  gghighlight(state_name == 'California', # Highlight california
+              unhighlighted_params = list(colour = NULL, alpha = 0.7))+ #Set the alpha and color of the unhighlighted
+  coord_flip()+
+  ggthemes::theme_wsj() # Wallstreet Journal Theme
+
+# Repeat the code but change the selected region
+
+southwest <- nri_clean %>% 
+  filter(coast == 'southwest') %>% 
+ggplot( aes(x = state_name, y = national_risk_index_score_composite))+
+  geom_beeswarm(alpha = .5, color = 'grey')+
+  labs(title = 'Southwest')+
+  geom_boxplot()+
+  gghighlight(state_name == 'California',
+              unhighlighted_params = list(colour = NULL, alpha = 0.7))+
+  coord_flip()+
+  ggthemes::theme_wsj()
+
+midwest <- nri_clean %>% 
+  filter(coast == 'midwest') %>% 
+ggplot( aes(x = state_name, y = national_risk_index_score_composite))+
+  geom_beeswarm(alpha = .5, color = 'grey')+
+  labs(title = 'Midwest')+
+  geom_boxplot()+
+  gghighlight(state_name == 'California',
+              unhighlighted_params = list(colour = NULL, alpha = 0.7))+
+  coord_flip()+
+  ggthemes::theme_wsj()
+
+east <- nri_clean %>% 
+  filter(coast == 'east') %>% 
+ggplot( aes(x = state_name, y = national_risk_index_score_composite))+
+  geom_beeswarm(alpha = .5, color = 'grey')+
+  labs(title = 'East Coast')+
+  geom_boxplot()+
+  gghighlight(state_name == 'California',
+              unhighlighted_params = list(colour = NULL, alpha = 0.7))+
+  coord_flip()+
+  ggthemes::theme_wsj()
+
+south <- nri_clean %>% 
+  filter(coast == 'south') %>% 
+ggplot( aes(x = state_name, y = national_risk_index_score_composite))+
+  geom_beeswarm(alpha = .5, color = 'grey')+
+  labs(title = 'South')+
+  geom_boxplot()+
+  gghighlight(state_name == 'California',
+              unhighlighted_params = list(colour = NULL, alpha = 0.7))+
+  coord_flip()+
+  ggthemes::theme_wsj()
+
+# Use patchwork to create frame
+((west + midwest + east )/ (southwest + south))+
+  plot_annotation(title = 'NRI Composite Scores By State', # Add title
+                  subtitle = 'California Shows a Higher Composite Risk Index than Most Other States', # Add subtitle 
+                  caption = 'Data: FEMA National Risk Index (2025 Release)', # And Caption
+  theme = theme(plot.title = element_text(hjust = 0.5, 'mono', size = 20), # Edit title and subtitle size, location, and font
+                plot.subtitle = element_text(hjust = 0.5, 'mono', size = 12)))
+```
+1. What are your variables of interest and what kinds of data (e.g. numeric, categorical, ordered, etc.) are they (a bullet point list is fine)?
+
+  -  National Risk Index composite score - Numeric composite of the county percentiles
+  -  State - Categorical
+  
+2. How did you decide which type of graphic form was best suited for answering the question? What alternative graphic forms could you have used instead? Why did you settle on this particular graphic form?
+
+  -  I decided to make a box plot because it is easy to see differences in medians and trends in general. I saw others using heatmaps and liked this Idea, but I feel like using the `theme_wsj` from `ggthemes` allowed me to create a visual that looks straight out of a newspaper, which was my goal.
+
+3. Summarize your main finding in no more than two sentences.
+
+-  I found that the composite NRI score in California is much higher than that of other states, indicating that on average the counties in California are at higher risk. 
+
+4. What modifications did you make to this visualization to make it more easily readable?
+
+-  The theme_wsj makes the plot more intelligable, furthermore my use of a larger title and subtitle make the visualization easy to understand and interpret. 
+
+5. Is there anything you wanted to implement, but didn’t know how? If so, please describe.
+
+-  I wanted to order the states by their latitudes, but could not figure out how to implement that change. 
+
+
