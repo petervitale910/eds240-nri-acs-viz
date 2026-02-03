@@ -7,9 +7,13 @@ Find the full assignment description on the [course website](https://eds-240-dat
 ## Repository Structure
 
 ├───eds240-nri-acs-viz.Rproj
+
 ├───data
+
 │   └───National_Risk_Index_Counties_807384124455672111.csv
+
 ├───NRI_VIZ.qmd
+
 └───README.md
 
 ## Data access and reference
