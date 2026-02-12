@@ -1,5 +1,5 @@
 ---
-title: "nri_viz"
+title: "NRI Visualization"
 format: html
 editor: visual
 author: Peter Vitale
@@ -22,6 +22,7 @@ nri_df <- read_csv(here('data',
                         'National_Risk_Index_Counties_807384124455672111.csv'))
 ```
 
+## Clean Data 
 ```{r}
 nri_clean <- nri_df %>% 
   select(c(1,2,3,4,6,7,10, 15)) %>% 
@@ -45,69 +46,97 @@ nri_clean <- nri_df %>%
                       'Delaware', 'Maryland', 'Rhode Island', 
                       'Massachusetts') ~ 'east',
     TRUE ~ 'south' # all the rest are the southern states
-  ))
+  )) 
 
 ```
+
+## Plot data
 
 ```{r}
 #| warning: false
 #| fig-alt: 'A box plot of the United States and their respective National Risk Index (NRI) Scores. The states are broken up by their regions (West Coast, Southwest, Midwest, South, East Coast). The x axis is scaled from 0-100 with most states having a median NRI of around 50-75. California is highlighted and shows a higher median than most other states, at  94.8.'
+#| fig-width: 12
+#| fig-height: 7
+#| fig-align: "center"
 west <- nri_clean %>% 
   filter(coast == 'west') %>% # Select the coast
-ggplot(aes(x = state_name, y = national_risk_index_score_composite))+
+ggplot(aes(x = forcats::fct_reorder(state_name,
+                                    national_risk_index_score_composite, 
+                                    .fun = median), # Order states by risk index median
+           y = national_risk_index_score_composite))+
   geom_beeswarm(alpha = .5, color = 'grey')+
-  labs(title = 'West Coast')+
+  labs(title = 'West Coast',
+       y = 'NRI Composite Score',
+       x = '')+
   geom_boxplot(fill = '#DD0426')+
   gghighlight(state_name == 'California', # Highlight california
-              unhighlighted_params = list(colour = NULL, alpha = 0.7))+ #Set the alpha and color of the unhighlighted
+              unhighlighted_params = list(colour = NULL, alpha = 0.5))+ #Set the alpha and color of the unhighlighted
   coord_flip()+
-  ggthemes::theme_wsj() # Wallstreet Journal Theme
-
-# Repeat the code but change the selected region
+  ggthemes::theme_solarized()
 
 southwest <- nri_clean %>% 
   filter(coast == 'southwest') %>% 
-ggplot( aes(x = state_name, y = national_risk_index_score_composite))+
+ggplot(aes(x = forcats::fct_reorder(state_name,
+                                    national_risk_index_score_composite, 
+                                    .fun = median), # Order states by risk index median
+           y = national_risk_index_score_composite))+
   geom_beeswarm(alpha = .5, color = 'grey')+
-  labs(title = 'Southwest')+
+  labs(title = 'Southwest',
+       y = 'NRI Composite Score',
+       x = '')+
   geom_boxplot()+
   gghighlight(state_name == 'California',
-              unhighlighted_params = list(colour = NULL, alpha = 0.7))+
+              unhighlighted_params = list(colour = NULL, alpha = 0.5))+
   coord_flip()+
-  ggthemes::theme_wsj()
+  ggthemes::theme_solarized()
 
 midwest <- nri_clean %>% 
   filter(coast == 'midwest') %>% 
-ggplot( aes(x = state_name, y = national_risk_index_score_composite))+
+ggplot(aes(x = forcats::fct_reorder(state_name,
+                                    national_risk_index_score_composite, 
+                                    .fun = median), # Order states by risk index median
+           y = national_risk_index_score_composite))+
   geom_beeswarm(alpha = .5, color = 'grey')+
-  labs(title = 'Midwest')+
+  labs(title = 'Midwest',
+       y = 'NRI Composite Score',
+       x = '')+
   geom_boxplot()+
   gghighlight(state_name == 'California',
-              unhighlighted_params = list(colour = NULL, alpha = 0.7))+
+              unhighlighted_params = list(colour = NULL, alpha = 0.5))+
   coord_flip()+
-  ggthemes::theme_wsj()
+  ggthemes::theme_solarized()
 
 east <- nri_clean %>% 
   filter(coast == 'east') %>% 
-ggplot( aes(x = state_name, y = national_risk_index_score_composite))+
+ggplot(aes(x = forcats::fct_reorder(state_name,
+                                    national_risk_index_score_composite, 
+                                    .fun = median), # Order states by risk index median
+           y = national_risk_index_score_composite))+
   geom_beeswarm(alpha = .5, color = 'grey')+
-  labs(title = 'East Coast')+
+  labs(title = 'East Coast',
+       y = 'NRI Composite Score',
+       x = '')+
   geom_boxplot()+
   gghighlight(state_name == 'California',
-              unhighlighted_params = list(colour = NULL, alpha = 0.7))+
+              unhighlighted_params = list(colour = NULL, alpha = 0.5))+
   coord_flip()+
-  ggthemes::theme_wsj()
+  ggthemes::theme_solarized()
 
 south <- nri_clean %>% 
   filter(coast == 'south') %>% 
-ggplot( aes(x = state_name, y = national_risk_index_score_composite))+
+ggplot(aes(x = forcats::fct_reorder(state_name,
+                                    national_risk_index_score_composite, 
+                                    .fun = median), # Order states by risk index median
+           y = national_risk_index_score_composite))+
   geom_beeswarm(alpha = .5, color = 'grey')+
-  labs(title = 'South')+
+  labs(title = 'South',
+       y = 'NRI Composite Score',
+       x = '')+
   geom_boxplot()+
   gghighlight(state_name == 'California',
-              unhighlighted_params = list(colour = NULL, alpha = 0.7))+
+              unhighlighted_params = list(colour = NULL, alpha = 0.5))+
   coord_flip()+
-  ggthemes::theme_wsj()
+  ggthemes::theme_solarized()
 
 # Use patchwork to create frame
 ((west + midwest + east )/ (southwest + south))+
@@ -132,7 +161,7 @@ ggplot( aes(x = state_name, y = national_risk_index_score_composite))+
 
 4. What modifications did you make to this visualization to make it more easily readable?
 
--  The theme_wsj makes the plot more intelligable, furthermore my use of a larger title and subtitle make the visualization easy to understand and interpret. 
+-  The solarized makes the plot more intelligable, furthermore my use of a larger title and subtitle make the visualization easy to understand and interpret. 
 
 5. Is there anything you wanted to implement, but didn’t know how? If so, please describe.
 

@@ -14,6 +14,8 @@ Find the full assignment description on the [course website](https://eds-240-dat
 
 ├───NRI_VIZ.qmd
 
+├───NRI_ACS_analysis.qmd
+
 └───README.md
 
 ## Data access and reference
