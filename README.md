@@ -1,6 +1,6 @@
-# Homework 2: National Risk index in the United States
+# Homework 2 & 3: National Risk index in the United States & ACS in California
 
-This repository contains the analysis of National Risk Index (NRI) in the United States, with a visualization highlighting california compared to other states.
+This repository contains the analysis of National Risk Index (NRI) in the United States. The NRI_VIZ analysis compares the composite NRI scores of US States. The NRI_ACS_viz examines the NRI of counties in California in relation to the racial and ethnic groups in those counties. 
 
 Find the full assignment description on the [course website](https://eds-240-data-viz.github.io/course-materials/assignments/HW2.html)
 
