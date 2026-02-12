@@ -19,5 +19,5 @@ Find the full assignment description on the [course website](https://eds-240-dat
 └───README.md
 
 ## Data access and reference
-The data is publically available and can be found via the [FEMA Resilience Analysis and Planning Tool](https://experience.arcgis.com/experience/0a317e8998534c30a9b2d3861c814d42/)
+The data is publically available and can be found via the [FEMA Resilience Analysis and Planning Tool](https://experience.arcgis.com/experience/0a317e8998534c30a9b2d3861c814d42/) and via the ACS API key. 
 
