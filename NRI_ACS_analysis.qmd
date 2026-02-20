@@ -58,7 +58,7 @@ nri_df <- read_csv(here('data',
 
 ```{r}
 nri_clean <- nri_df %>% 
-  select(c(1,2,3,4,6,7,10, 15)) %>% 
+  select(c(1,2,3,4,6,7,10, 15,16)) %>% 
   clean_names() %>% 
   filter(state_name == 'California') %>% # Keep only California 
   separate(national_risk_index_id, 
@@ -90,7 +90,12 @@ nri_county_race <- nri_acs_joined %>%
     TRUE ~ 'Other Race'
   ))  %>%
   # Remove where those labels are of the entire population in a county
-  filter(label != 'Overall Population') 
+  filter(label != 'Overall Population') %>% 
+  mutate(nri_rating = factor(national_risk_index_rating_composite,
+                                levels = c('Very High',
+                                           'Relatively High',
+                                           'Relatively Moderate',
+                                           'Relatively Low')))
   
   
 ```
@@ -103,38 +108,36 @@ nri_county_race <- nri_acs_joined %>%
 #| fig-height: 7
 #| fig-align: "center"
 #| fig-alt: 'A histogram of the National Risk Index (NRI) composite scores compared to American Community Survey(ACS) defined racial and ethnic groups. The plot has NRI on the x-axis ranging from 80 to 100. The y-axis contains the proportional value of the populations in each racial/ethnic group. The bins of the histogram are 1 point of NRI. A majority of the NRI scores are close to 100. The histogram shows no pattern in racial distribution over increasing NRI scores.'
+
+showtext::showtext_auto(enable = TRUE)
 ggplot(nri_county_race,
-       aes(y = estimate, 
-           x = national_risk_index_score_composite, 
-           width= .5, 
-           fill = label))+
-  geom_histogram(position="fill", # I use fill and identity to make a proportion
+       aes(y = national_risk_index_score_composite, 
+           x = label, 
+           width= .7, 
+           fill = nri_rating))+
+  geom_histogram(
                  stat="identity")+
   scale_fill_manual(values = c("#448aff", # Scale the color with coolors color scale
                                "#1565c0",
                                "#009688",
-                               "#8bc34a",
-                               "#ffc107",
-                               "#ff9800",
-                               "#f44336",
-                               "#ad1457"))+
+                               "#8bc34a"))+
   # Update the labels
-  labs(x = 'Composite National Risk Index Score', 
-       y = 'Population Proportion',
-       fill = 'Race/Ethnicity',
+  labs(y = 'Cumulutive National Risk Index Over All Counties',
+       fill = 'Risk Index Rating',
        title = 'Composite National Risk Index Score In California',
-       subtitle = 'Scores plotted with proportions of total population',
-       caption = 'Data: FEMA National Risk Index (2025 Release) \n and American Community Survey Data (2023 Release)' )+
+       subtitle = 'Non-Identified Races show higher NRI Scores, with high proportions of Relatively High \ncompared to other racial and ethnic groups',
+       caption = 'Data: FEMA National Risk Index (2025 Release) \nand American Community Survey Data (2023 Release)' )+
   theme_tufte()+
   # I want dark colors so I change the background to black and the text to white
   theme(plot.background = element_rect(fill = "#222222", 
                                        color = "#222222"),
         plot.title = element_text(color = 'white', 
-                                   size = 24,
+                                   size = 26,
+                                  face = 'bold',
                                   family = 'serif'), # Times new roman 
         plot.subtitle = element_text(color = 'white',
                                      size = 20,
-                                     face = "italic",
+                                     face = 'italic',
                                      family = 'serif'),
         axis.title = element_text(color = 'white', 
                                    size = 18,
@@ -143,16 +146,17 @@ ggplot(nri_county_race,
                                      size = 18,
                                     family = 'serif'),
         plot.caption =  element_text(color = 'white',
-                                     size = 16,
-                                     hjust = 1.45),
+                                     size = 12,
+                                     hjust = 1.44),
         axis.title.y = element_text(margin = margin(r = 15, 
-                                                    unit = "pt")), # Add margin on x
+                                                    unit = "pt")),# Add margin on x
+        axis.title.x = element_blank(),
         axis.text = element_text(color = 'white',
                                  size = 16),
+        axis.text.x = element_text(angle = 45,
+                                   vjust = .6),
         legend.text = element_text(color = 'white',
                                    size = 16))
-
-
 ```
 1. What are your variables of interest and what kinds of data (e.g. numeric, categorical, ordered, etc.) are they (a bullet point list is fine)?
 
